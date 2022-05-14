@@ -1,0 +1,9 @@
+I want to make a step sequencer, with a GUI. I want it to support 16 steps, variable tempo, pitch, and velocity. It need not do
+note on/off, just one shot samples is fine.
+
+120 b / m
+1/120 m / b
+60 s / m
+
+1/120 * 60 = seconds per beat
+1/120 * 60 * 1/4 = seconds per 16th
