@@ -1,32 +1,7 @@
-import time
 import copy
-import re
 import mido
 from random import randint
-
-
-# duration in seconds
-def sleep(duration):
-    start = time.perf_counter()
-    while start + duration >= time.perf_counter():
-        pass
-
-
-# table of natural midi note numbers mod 12
-note_numbers = {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
-num_reg = re.compile('-?\\d+')
-
-
-def note_to_midi(note):
-    # adds 1 if sharp, subtracts 1 if flat, or both if they included both hehe
-    midi_num = note_numbers[note[0]] + ('#' in note) - ('b' in note)
-    octave_nums = num_reg.search(note)
-    if octave_nums is None:
-        # defaults to 4th octave
-        midi_num += 12 * (4+1)
-    else:
-        midi_num += 12 * (int(octave_nums[0])+1)
-    return midi_num
+from helpers import *
 
 
 class Sequence:
@@ -89,20 +64,3 @@ class Sequence:
             if abs_step == end:
                 playing = False
             abs_step += 1
-
-
-out = mido.open_output('loopMIDI Port 1')
-
-# C2 = kick, D2 = snare, E2 = hihat
-
-x = Sequence(out=out)
-for i in range(1, 16):
-    if i % 8 == 1:
-        x.add_note(i, 'C2')
-    if i % 8 == 5:
-        x.add_note(i, 'D2')
-    if i % 2 == 1:
-        x.add_note(i, 'E2')
-
-x.play()
-x.set_length(4)
