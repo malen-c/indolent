@@ -26,7 +26,7 @@ class Sequence:
             if with_copy:
                 for x in range(factor):
                     self._pattern.extend(copy.deepcopy(self._pattern))
-            elif not with_copy:
+            else:
                 for x in range(self._length - original_length):
                     self._pattern.extend({})
 
