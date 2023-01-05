@@ -1,4 +1,3 @@
-import copy
 import mido
 import os
 from random import randint
@@ -32,7 +31,7 @@ class Sequence:
 
     def set_length(self, factor, with_copy=True):
         if (self.length * factor) % 1 != 0:
-            raise Exception("sequence.set_length(factor, with_copy = True) : new pattern length must be int")
+            raise Exception("New pattern length must be int")
         original_length = self.length
 
         self.length = self.length * factor
@@ -53,10 +52,16 @@ class Sequence:
 
     def set_tempo(self, new_tempo):
         if new_tempo <= 0:
-            raise Exception('sequence.set_tempo(new_tempo) : tempo must be positive int or float')
+            raise ValueError('Tempo must be positive int or float')
         else:
             self.tempo = new_tempo
             self.step_length = 60 / self.tempo * 0.25
+
+    def transpose(self, steps):
+        if not isinstance(steps, int):
+            raise TypeError('Steps to transpose by must be int')
+        self.pattern = [{note+steps: velocity} for i in range(self.length)
+                        for note, velocity in self.pattern[i].items()]
 
     def add_note(self, step, pitch, velocity=127):
         # user input steps range from 1 to 16 even though sequence is 0 to 15
