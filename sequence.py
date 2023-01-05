@@ -57,8 +57,10 @@ class Sequence:
         return new
 
     def add_note(self, step, pitch, velocity=60):
-        # user input steps range from 1 to 16 even though sequence is 0 to 15
+        # user input steps range from 1 to 16 even though sequence is 0 to 15 e.g.
         self.pattern[step - 1][note_to_midi(pitch)] = velocity
+        # stop next step (it's a drum sequencer for now
+        self.pattern[step % self.length][note_to_midi(pitch)] = -1
 
     def play_note(self, pitch=60, velocity=127):
         self.out.send(mido.Message('note_on', note=pitch, velocity=velocity))
@@ -66,6 +68,9 @@ class Sequence:
                'tiss!', 'bap!', 'tskkk!',
                'WAP!')[randint(0, 6)], end=' ')
         print(pitch, velocity)
+
+    def stop_note(self, pitch):
+        self.out.send(mido.Message('note_off', note=pitch))
 
     def play(self, repeats=1):
         playing = True
@@ -77,10 +82,14 @@ class Sequence:
             # seq step cannot exceed length of loop
             seq_step = (abs_step - 1) % self.length
             for note, velocity in self.pattern[seq_step].items():
-                # current step mod length of pattern so it repeats
-                self.play_note(note, velocity)
+                if velocity < 0:
+                    self.stop_note(note)
+                else:
+                    self.play_note(note, velocity)
             sleep(self.step_length)
             if abs_step == end:
+                for x in self.pattern[-1]:
+                    self.stop_note(x)
                 playing = False
             abs_step += 1
 
