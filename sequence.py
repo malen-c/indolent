@@ -16,39 +16,50 @@ class Sequence:
         self.step_length = 60 / self.tempo * 0.25
         self.out = out
 
+    def __add__(self, other):
+        new = self.__class__(length=self.length+other.length, tempo=self.tempo, out=self.out)
+        new.pattern = self.pattern + other.pattern
+        return new
+
     def __mul__(self, other):
         # Multiplying two sequences yields their superimposed combination, essentially hitting play on each
         # simultaneously
-        longer = max(self, other, key=lambda x: x.length)
-        shorter = min(other, self, key=lambda x: x.length)
+
+        shorter, longer = sorted([self, other], key=lambda x: x.length)
 
         new = self.__class__(length=longer.length, tempo=self.tempo, out=self.out)
         new.pattern = longer.pattern
+
         for i in range(shorter.length):
             for note, velocity in shorter.pattern[i].items():
                 new.pattern[i][note] = velocity
         return new
 
+    def shift(self, steps):
+        new = self.__class__(length=self.length, tempo=self.tempo, out=self.out)
+        new.pattern = self.pattern[steps:] + self.pattern[:steps]
+        return new
+
     def set_length(self, factor, with_copy=True):
         if (self.length * factor) % 1 != 0:
             raise Exception("New pattern length must be int")
-        original_length = self.length
 
-        self.length = self.length * factor
-        if self.length < original_length:
-            self.pattern = self.pattern[0:self.length - 1]
+        new = self.__class__(length=self.length*factor, tempo=self.tempo, out=self.out)
+        if new.length < self.length:
+            new.pattern = self.pattern[0:new.length - 1]
+            return new
         else:
             if with_copy:
                 # Faster to recreate by accessing values directly rather than repeated copy.deepcopy uses
-                original_pattern = self.pattern
-                self.pattern = [{} for i in range(self.length)]
-                for i in range(original_length):
-                    for note, velocity in original_pattern[i].items():
+                new.pattern = [{} for i in range(new.length)]
+                for i in range(self.length):
+                    for note, velocity in self.pattern[i].items():
                         for x in range(factor):
                             # Place note in its spot in each new measure
-                            self.pattern[i + (x * original_length)][note] = velocity
+                            new.pattern[i + (x * self.length)][note] = velocity
             else:
-                self.pattern = self.pattern + [{} for i in range(self.length - original_length)]
+                new.pattern = self.pattern + [{} for i in range(new.length - self.length)]
+            return new
 
     def set_tempo(self, new_tempo):
         if new_tempo <= 0:
@@ -60,10 +71,11 @@ class Sequence:
     def transpose(self, steps):
         if not isinstance(steps, int):
             raise TypeError('Steps to transpose by must be int')
-        self.pattern = [{note+steps: velocity} for i in range(self.length)
-                        for note, velocity in self.pattern[i].items()]
+        new = self.__class__(length=self.length, tempo=self.tempo, out=self.out)
+        new.pattern = [{note+steps: velocity for note, velocity in self.pattern[i].items()} for i in range(self.length)]
+        return new
 
-    def add_note(self, step, pitch, velocity=127):
+    def add_note(self, step, pitch, velocity=60):
         # user input steps range from 1 to 16 even though sequence is 0 to 15
         self.pattern[step - 1][note_to_midi(pitch)] = velocity
 
