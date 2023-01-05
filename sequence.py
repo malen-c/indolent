@@ -16,25 +16,6 @@ class Sequence:
         self.step_length = 60 / self.tempo * 0.25
         self.out = out
 
-    def __add__(self, other):
-        new = self.__class__(length=self.length+other.length, tempo=self.tempo, out=self.out)
-        new.pattern = self.pattern + other.pattern
-        return new
-
-    def __mul__(self, other):
-        # Multiplying two sequences yields their superimposed combination, essentially hitting play on each
-        # simultaneously
-
-        shorter, longer = sorted([self, other], key=lambda x: x.length)
-
-        new = self.__class__(length=longer.length, tempo=self.tempo, out=self.out)
-        new.pattern = longer.pattern
-
-        for i in range(shorter.length):
-            for note, velocity in shorter.pattern[i].items():
-                new.pattern[i][note] = velocity
-        return new
-
     def shift(self, steps):
         new = self.__class__(length=self.length, tempo=self.tempo, out=self.out)
         new.pattern = self.pattern[steps:] + self.pattern[:steps]
@@ -86,12 +67,12 @@ class Sequence:
                'WAP!')[randint(0, 6)], end=' ')
         print(pitch, velocity)
 
-    def play(self):
+    def play(self, repeats=1):
         playing = True
         # absolute step can exceed length of loop, e.g. you can be on
         # step 18 of a 16-step loop if you're on the second repeat
         abs_step = 1
-        end = self.length
+        end = self.length * repeats
         while playing:
             # seq step cannot exceed length of loop
             seq_step = (abs_step - 1) % self.length
@@ -126,3 +107,22 @@ class Sequence:
             delta += step_length
             next_delta += step_length
         mid.save(os.path.abspath(outdir + '/' + name))
+
+    def __add__(self, other):
+        new = self.__class__(length=self.length+other.length, tempo=self.tempo, out=self.out)
+        new.pattern = self.pattern + other.pattern
+        return new
+
+    def __mul__(self, other):
+        # Multiplying two sequences yields their superimposed combination, essentially hitting play on each
+        # simultaneously
+
+        shorter, longer = sorted([self, other], key=lambda x: x.length)
+
+        new = self.__class__(length=longer.length, tempo=self.tempo, out=self.out)
+        new.pattern = longer.pattern
+
+        for i in range(shorter.length):
+            for note, velocity in shorter.pattern[i].items():
+                new.pattern[i][note] = velocity
+        return new
