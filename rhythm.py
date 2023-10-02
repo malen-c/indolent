@@ -3,7 +3,6 @@ import random
 
 
 class Rhythm:
-
     def __init__(self, length=None, pattern=None):
         # Fill out pattern with rests
         if pattern is None:
@@ -14,15 +13,17 @@ class Rhythm:
         self.length = length
 
     # Todo: add different ways to arpeggiate
-    def make_sequence(self, pitches, length=None):
+    def make_sequence(self, pitches, velocities=127, length=None):
         if isinstance(pitches, str):
             pitches = [pitches]
+        if isinstance(velocities, int):
+            velocities = [velocities]
         if length is None:
             length = self.length
         x = Sequence(length=length)
         for i in range(self.length):
             if self.pattern[i]:
-                x.add_note(i+1, pitch=pitches[i % len(pitches)])
+                x.add_note(i+1, pitch=pitches[i % len(pitches)], velocity=velocities[i % len(velocities)])
         return x
 
     def shift(self, steps):
