@@ -1,6 +1,7 @@
-import mido
 import os
-from helpers import *
+
+import mido
+from .helpers import *
 
 
 class Sequence:

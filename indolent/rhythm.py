@@ -1,5 +1,6 @@
-from sequence import Sequence
 import random
+
+from .sequence import Sequence
 
 
 class Rhythm:
