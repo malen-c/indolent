@@ -1,6 +1,6 @@
 import random
 
-from .sequence import Sequence
+from indolent.sequence import Sequence
 
 
 class Rhythm:

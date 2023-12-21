@@ -1,7 +1,7 @@
 import os
 
 import mido
-from .helpers import *
+from indolent.helpers import *
 
 
 class Sequence:
