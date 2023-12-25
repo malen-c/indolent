@@ -25,5 +25,14 @@ class Note:
         self.velocity = velocity
         self.length = length
 
+    def __hash__(self):
+        return hash(self.pitch)
+
     def __eq__(self, other):
         return self.pitch == other.pitch
+
+    def __repr__(self):
+        return f'<Note> \nPitch: {self.pitch_name}, Velocity: {self.velocity}, Length: {self.length[0]}/{self.length[1]}\n'
+
+    def __lt__(self, other):
+        return self.pitch < other.pitch
