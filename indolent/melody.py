@@ -1,4 +1,4 @@
-from indolent.helpers import *
+from helpers import midi_to_note, note_to_midi
 
 
 class Note:
@@ -32,7 +32,9 @@ class Note:
         return self.pitch == other.pitch
 
     def __repr__(self):
-        return f'<Note> \nPitch: {self.pitch_name}, Velocity: {self.velocity}, Length: {self.length[0]}/{self.length[1]}\n'
+        return (
+            f'<Note> \nPitch: {self.pitch_name}, Velocity: {self.velocity}, Length: {self.length[0]}/{self.length[1]}\n'
+        )
 
     def __lt__(self, other):
         return self.pitch < other.pitch

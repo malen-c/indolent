@@ -14,20 +14,41 @@ class Chord:
     ----------
         notes : set(Note)
             The collection of Notes that make up the chord
+        name : str (optional)
+            The name of the chord, e.g. "C", "C major", etc.
     """
-    def __init__(self, notes):
+    def __init__(self, notes, name=None):
         if any([not isinstance(x, Note) for x in notes]):
             raise TypeError('Chord must be constructed with an iterable of Note objects')
         self.notes = set(notes)
+        self.name = name
 
     def add_note(self, note):
         self.notes.add(Note(pitch=note))
 
     def __repr__(self):
-        return ' '.join([x.pitch_name for x in sorted(self.notes)])
+        if self.name is not None:
+            return self.name
+        else:
+            return ' '.join([x.pitch_name for x in sorted(self.notes)])
+
+ 
+class Progression:
+    def __init__(self, chords, lengths=None):
+        if any([not isinstance(x, Chord) for x in chords]):
+            raise TypeError('Progression must be constructed with an iterable of Chord objects')
+        self.chords = chords
+        if lengths is None:
+            self.lengths = [1] * len(self.chords)
+
+    def __repr__(self):
+        if len(self.chords) > 10:
+            return ', '.join([repr(x) for x in self.chords[:10]]) + '...'
+        else:
+            return ', '.join([repr(x) for x in self.chords])
 
 
-def create_chord(root, minor=False, seven=None, diminished=False, extensions=[]):
+def create_chord(root, minor=False, seven=None, diminished=False, extensions=()):
     """Constructor method for Chord class
 
     Parameters
