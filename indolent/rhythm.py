@@ -1,6 +1,7 @@
+import math
 import random
 
-from indolent.sequence import Sequence
+from sequence import Sequence
 
 
 class Rhythm:
@@ -33,6 +34,24 @@ class Rhythm:
 
     def __add__(self, other):
         return self.__class__(length=self.length + other.length, pattern=self.pattern + other.pattern)
+
+    def __mul__(self, scalar):
+        """Alters length by copying or truncating existing rhythm"""
+        if isinstance(scalar, int) and scalar >= 0:
+            return self.__class__(length=self.length * scalar, pattern=self.pattern * scalar)
+        elif isinstance(scalar, float) and scalar >= 0:
+            if not (self.length * scalar).is_integer():
+                raise ValueError("Scalar would result in non-integer number of steps")
+            n_full_repeats = math.floor(scalar)
+            remainder_length = int(self.length * (scalar % 1))
+            new_pattern = self.pattern * n_full_repeats + self.pattern[:remainder_length]
+
+            return self.__class__(length=int(self.length * scalar), pattern=new_pattern)
+        else:
+            raise TypeError(f'Can only multiply Rhythm by positive numeric, not {scalar}')
+
+    def __eq__(self, other):
+        return self.length == other.length and self.pattern == other.pattern
 
     def __repr__(self):
         return f"<Rhythm ({self.length}): {''.join(['x'*i + '.'*(1-i) for i in self.pattern])}>"
